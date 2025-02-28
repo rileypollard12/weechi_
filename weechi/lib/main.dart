@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'vehicles_page.dart';
@@ -41,6 +42,10 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = !kIsWeb && (defaultTargetPlatform == TargetPlatform.macOS || defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.linux);
+    final padding = isDesktop ? const EdgeInsets.all(40) : const EdgeInsets.all(20);
+    final crossAxisCount = isDesktop ? 3 : 2;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -48,7 +53,7 @@ class DashboardPage extends StatelessWidget {
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -82,7 +87,7 @@ class DashboardPage extends StatelessWidget {
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
+              crossAxisCount: crossAxisCount,
               crossAxisSpacing: 20,
               mainAxisSpacing: 20,
               childAspectRatio: 1.1,

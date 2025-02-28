@@ -4,7 +4,7 @@ import 'models/vehicle.dart';
 import 'models/vehicle_booking.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8000/api'; // Update this to your Django backend URL
+  static const String baseUrl = 'http://localhost:8080/api'; // Update this to your Django backend URL
   static final ApiService _instance = ApiService._internal();
   String? _token;
 
