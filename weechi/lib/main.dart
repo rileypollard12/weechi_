@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import 'api_service.dart';
-import 'models/vehicle.dart';
+import 'vehicles_page.dart';
+import 'my_bookings_page.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Website Dashboard',
+      title: 'Weechi Dashboard',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF3F51B5), // Indigo
+          brightness: Brightness.light,
+        ),
+        // Use default Flutter fonts
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(
+              fontSize: 72.0, fontWeight: FontWeight.bold, color: Colors.black87),
+          titleLarge: TextStyle(
+              fontSize: 24.0,
+              fontStyle: FontStyle.normal,
+              color: Colors.black87),
+          bodyMedium: TextStyle(fontSize: 16.0, color: Colors.black87),
+        ),
+        useMaterial3: true,
       ),
       home: const LoginPage(),
     );
@@ -23,37 +37,92 @@ class MyApp extends StatelessWidget {
 }
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  const DashboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            DashboardButton(
-              icon: Icons.directions_car,
-              label: 'Vehicles',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const VehiclesPage()),
-                );
-              },
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Welcome Section
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome, Staff!',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Welcome to the Weechi-it-te-win Family Services Staff Portal.',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+              ),
             ),
-            DashboardButton(
-              icon: Icons.settings,
-              label: 'Settings',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsPage()),
-                );
-              },
+            const SizedBox(height: 20),
+
+            // Quick Actions Grid
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              childAspectRatio: 1.1,
+              children: const [
+                DashboardCard(
+                  icon: Icons.directions_car,
+                  title: 'Manage Vehicles',
+                  route: VehiclesPage(),
+                ),
+                DashboardCard(
+                  icon: Icons.book_online,
+                  title: 'My Bookings',
+                  route: MyBookingsPage(),
+                ),
+                DashboardCard(
+                  icon: Icons.settings,
+                  title: 'Settings',
+                  route: VehiclesPage(), // Replace with actual page
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Recent Activity (Example)
+            Text(
+              'Recent Activity',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: const Icon(Icons.local_shipping),
+              title: const Text('Vehicle #1234 maintenance scheduled'),
+              subtitle: const Text('2 hours ago'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+            ),
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text('Booking #5678 created'),
+              subtitle: const Text('Yesterday'),
+              trailing: const Icon(Icons.arrow_forward_ios),
             ),
           ],
         ),
@@ -62,77 +131,51 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
-class DashboardButton extends StatelessWidget {
+class DashboardCard extends StatelessWidget {
   final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
+  final String title;
+  final Widget route;
 
-  const DashboardButton({
+  const DashboardCard({
+    Key? key,
     required this.icon,
-    required this.label,
-    required this.onPressed,
-    super.key,
-  });
+    required this.title,
+    required this.route,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton.icon(
-        icon: Icon(icon, size: 40),
-        label: Text(label, style: const TextStyle(fontSize: 20)),
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-        ),
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
       ),
-    );
-  }
-}
-
-class VehiclesPage extends StatefulWidget {
-  const VehiclesPage({super.key});
-
-  @override
-  _VehiclesPageState createState() => _VehiclesPageState();
-}
-
-class _VehiclesPageState extends State<VehiclesPage> {
-  late Future<List<Vehicle>> futureVehicles;
-
-  @override
-  void initState() {
-    super.initState();
-    futureVehicles = ApiService().fetchVehicles();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vehicles'),
-      ),
-      body: Center(
-        child: FutureBuilder<List<Vehicle>>(
-          future: futureVehicles,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              List<Vehicle> vehicles = snapshot.data!;
-              return ListView.builder(
-                itemCount: vehicles.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text('${vehicles[index].year} ${vehicles[index].make} ${vehicles[index].model}'),
-                    subtitle: Text('Plate: ${vehicles[index].plate} - Color: ${vehicles[index].color}'),
-                    trailing: Text('VIN: ${vehicles[index].vin}'),
-                  );
-                },
-              );
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return const CircularProgressIndicator();
-          },
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => route),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 48,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
